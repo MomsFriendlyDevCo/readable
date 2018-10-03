@@ -1,4 +1,3 @@
-var _ = require('lodash');
 var readable = module.exports = {};;
 
 readable.defaults = {
@@ -50,7 +49,7 @@ readable.defaults = {
 		},
 		formatters: {
 			fallback:     'Just now',
-			input:        v => _.isDate(v) ? Date.now() - v.getTime()
+			input:        v => v.constructor.name == 'Date' ? Date.now() - v.getTime()
 			                  : v.constructor.name == 'Moment' ? Date.now() - v.valueOf()
 					  : Date.now() - v,
 			combiner:     bits => bits.join('').replace(/\s+$/g, ''),
@@ -99,7 +98,7 @@ readable.defaults = {
 * relativeTime(new Date(Date.now() - 65000)) //= "1m5s"
 */
 readable.relativeTime = (diff, options) => {
-	var settings = _.defaultsDeep(options, readable.defaults.time);
+	var settings = readable._defaultsDeep(options, readable.defaults.time);
 	diff = settings.formatters.input(diff);
 
 	var result = Object.keys(settings.units)
@@ -143,8 +142,8 @@ readable.relativeTime = (diff, options) => {
 * fileSize(1073741824) //= "1tb"
 * fileSize(1288490188) //= "1.2tb"
 */
-module.exports.fileSize = (bytes, options) => {
-	var settings = _.defaultsDeep(options, readable.defaults.fileSize);
+readable.fileSize = (bytes, options) => {
+	var settings = readable._defaultsDeep(options, readable.defaults.fileSize);
 
 	var unit = Object.keys(settings.units)
 		.filter(unit => settings.values[unit] && settings.units[unit])
@@ -157,4 +156,22 @@ module.exports.fileSize = (bytes, options) => {
 		: unit ? settings.formatters[unit]((bytes / settings.values[unit]).toFixed(settings.decimals)) // Imperfect value with decimal rounding
 		: typeof settings.formatters.fallback == 'string' ? settings.formatters.fallback
 		: settings.formatters.fallback(unit);
+};
+
+
+/**
+* Native implementation of the lodash _.defaultsDeep() function
+* This is really only here so we don't need Lodash as a dependency
+* @param {Object|null|undefined} target The object which will be mutated with the defaults, if it is not already an object it is mutated into one
+* @param {Object} defaults The object to deep merge into the target
+*/
+readable._defaultsDeep = (target, defaults) => {
+	if (typeof target != 'object') target = {};
+
+	for (var k in defaults) {
+		if (typeof target[k] == 'undefined') target[k] = defaults[k]; // No value - inherit from defaults
+		if (typeof defaults[k] == 'object') readable._defaultsDeep(target[k], defaults[k]);
+	}
+
+	return target;
 };
