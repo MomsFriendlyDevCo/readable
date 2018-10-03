@@ -78,11 +78,18 @@ readable.defaults = {
 
 
 /**
-* Show a readable relative time
+* Show a human readable relative time distance
 * e.g. '1h2s'
 *
 * @param {number} diff The difference in milliseconds
-* @param {Object} [options] Additional options to pass
+*
+* @param {Object} [options] Additional options
+* @param {Object} [options.units] A list of units to output, each is named in the plural with a boolean indicating if it should be reported e.g. `{units: {years: true}}` to enable years as a usable unit
+* @param {Object} [options.formatters] A list of formatters for each named unit, each should be a function taking a single value. e.g. `{formatters: {days: v => `${v} days`}}`
+* @param {function|string} [options.formatters.fallback="Just now"] The fallback formatter to use, if it is a string its used as is, if it is a function it is called with the value
+* @param {function} [options.formatters.input] Input mangler, by defaults this converts dates and Moment objects to a millisecond offset from now
+* @param {function} [options.formatters.combiner] function used to combine all compiled units, by default this joins everything into a string with no spacing and truncates any training spaces
+* @param {Object} [options.values] A list of unit values to work with if the unit is enabled, each is the plural key of the measure with the number of milliseconds within the unit as the key
 *
 * @example
 * relativeTime(new Date(Date.now() - 50)) //= "Just now"
@@ -98,7 +105,7 @@ readable.relativeTime = (diff, options) => {
 	var result = Object.keys(settings.units)
 		.filter(unit => settings.values[unit] && settings.units[unit])
 		.map(unit => [unit, settings.values[unit]])
-		.sort((a, b) => a[1] == b[1] ? 0 : a[1] > b[1] ? -1 : 1) // Sort decending
+		.sort((a, b) => a[1] == b[1] ? 0 : a[1] > b[1] ? -1 : 1) // Sort descending
 		.map(unit => unit[0])
 		.reduce((ongoing, unit) => {
 			var v = Math.floor(ongoing.value / settings.values[unit]);
@@ -116,10 +123,18 @@ readable.relativeTime = (diff, options) => {
 
 
 /**
-* Show a readable file size
+* Show a human readable file size
 * e.g. '1.5kb'
 *
 * @param {number} bytes The bytes to format
+*
+* @param {Object} [options] Additional options
+* @param {number} [options.decimals=1] Decimal places to format the number into
+* @param {boolean} [options.decimalsAbsolute=true] If true the decimals will be clipped entirely if the number is exactly correct (e.g. if the input is `1024` the output is `1kb` not `1.0kb`)
+* @param {Object} [options.units] A list of units to output, each is named in the plural with a boolean indicating if it should be reported e.g. `{units: {kilobytes: true}}` to enable kilobytes as a usable unit
+* @param {Object} [options.formatters] A list of formatters for each named unit, each should be a function taking a single value. e.g. `{formatters: {terabytes: v => `${v} terabytes`}}`
+* @param {function|string} [options.formatters.fallback=""] The fallback formatter to use, if it is a string its used as is, if it is a function it is called with the input value
+* @param {Object} [options.values] A list of unit values to work with if the unit is enabled, each is the plural key of the measure with the number of milliseconds within the unit as the key
 *
 * @example
 * fileSize(1024) //= "1kb"
@@ -134,7 +149,7 @@ module.exports.fileSize = (bytes, options) => {
 	var unit = Object.keys(settings.units)
 		.filter(unit => settings.values[unit] && settings.units[unit])
 		.map(unit => [unit, settings.values[unit]])
-		.sort((a, b) => a[1] == b[1] ? 0 : a[1] > b[1] ? -1 : 1) // Sort decending
+		.sort((a, b) => a[1] == b[1] ? 0 : a[1] > b[1] ? -1 : 1) // Sort descending
 		.map(unit => unit[0])
 		.find(unit => bytes >= settings.values[unit]);
 
