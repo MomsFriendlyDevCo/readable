@@ -77,7 +77,7 @@ readable.defaults = {
 
 
 /**
-* Show a human readable relative time distance
+* Return a human readable relative time distance
 * e.g. '1h2s'
 *
 * @param {number} diff The difference in milliseconds
@@ -122,7 +122,7 @@ readable.relativeTime = (diff, options) => {
 
 
 /**
-* Show a human readable file size
+* Return a human readable file size
 * e.g. '1.5kb'
 *
 * @param {number} bytes The bytes to format
