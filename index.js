@@ -2,9 +2,43 @@ var _ = require('lodash');
 var readable = module.exports = {};;
 
 readable.defaults = {
+	fileSize: {
+		decimals:             1,
+		decimalsAbsolute:     true,
+		units: {
+			bytes:        true,
+			killobytes:   true,
+			megabytes:    true,
+			terabytes:    true,
+			petabytes:    false,
+			exabytes:     false,
+			zettabytes:   false,
+			yottabytes:   false,
+		},
+		formatters: {
+			fallback:      '',
+			bytes:        v => `${v}b`,
+			killobytes:   v => `${v}kb`,
+			megabytes:    v => `${v}mb`,
+			terabytes:    v => `${v}tb`,
+			petabytes:    v => `${v}pb`,
+			exabytes:     v => `${v}eb`,
+			zettabytes:   v => `${v}zb`,
+			yottabytes:   v => `${v}yb`,
+		},
+		values: {
+			bytes:        1,
+			killobytes:   1024,
+			megabytes:    Math.pow(1024, 2),
+			terabytes:    Math.pow(1024, 3),
+			petabytes:    Math.pow(1024, 4),
+			exabytes:     Math.pow(1024, 5),
+			zettabytes:   Math.pow(1024, 6),
+			yottabytes:   Math.pow(1024, 7),
+		},
+	},
 	time: {
 		units: {
-			fallback:     'Just now',
 			milliseconds: false,
 			seconds:      true,
 			minutes:      true,
@@ -15,9 +49,11 @@ readable.defaults = {
 			years:        true,
 		},
 		formatters: {
+			fallback:     'Just now',
 			input:        v => _.isDate(v) ? Date.now() - v.getTime()
 			                  : v.constructor.name == 'Moment' ? Date.now() - v.valueOf()
 					  : Date.now() - v,
+			combiner:     bits => bits.join('').replace(/\s+$/g, ''),
 			milliseconds: v => `${v}ms`,
 			seconds:      v => `${v}s`,
 			minutes:      v => `${v}m`,
@@ -26,7 +62,6 @@ readable.defaults = {
 			weeks:        v => `${v}W `,
 			months:       v => `${v}M `,
 			years:        v => `${v}Y `,
-			combiner:     bits => bits.join('').replace(/\s+$/g, ''),
 		},
 		values: {
 			milliseconds: 1,
@@ -51,7 +86,7 @@ readable.defaults = {
 *
 * @example
 * relativeTime(new Date(Date.now() - 50)) //= "Just now"
-* relativeTime(new Date(Date.now() - 50), {precision: 'ms'}) //= "50ms"
+* relativeTime(new Date(Date.now() - 50), {units: {milliseconds: true}}) //= "50ms"
 * relativeTime(new Date(Date.now() - 5000)) //= "5s"
 * relativeTime(new Date(Date.now() - 60000)) //= "1m"
 * relativeTime(new Date(Date.now() - 65000)) //= "1m5s"
@@ -75,8 +110,8 @@ readable.relativeTime = (diff, options) => {
 		}, {value: diff, bits: []})
 
 	return result.bits.length ? settings.formatters.combiner(result.bits)
-		: typeof settings.units.fallback == 'string' ? settings.units.fallback
-		: settings.units.fallback(result.bits.value)
+		: typeof settings.formatters.fallback == 'string' ? settings.formatters.fallback
+		: settings.formatters.fallback(result.bits.value)
 };
 
 
@@ -90,9 +125,21 @@ readable.relativeTime = (diff, options) => {
 * fileSize(1024) //= "1kb"
 * fileSize(1536) //= "1.5kb"
 * fileSize(1048576) //= "1mb"
-* fileSize(1073741824) //= "1gb"
-* fileSize(1288490188) //= "1.2gb"
+* fileSize(1073741824) //= "1tb"
+* fileSize(1288490188) //= "1.2tb"
 */
-module.exports.fileSize = (bytes) => {
-	return bytes + 'b'; // FIXME: Silly fix for now
+module.exports.fileSize = (bytes, options) => {
+	var settings = _.defaultsDeep(options, readable.defaults.fileSize);
+
+	var unit = Object.keys(settings.units)
+		.filter(unit => settings.values[unit] && settings.units[unit])
+		.map(unit => [unit, settings.values[unit]])
+		.sort((a, b) => a[1] == b[1] ? 0 : a[1] > b[1] ? -1 : 1) // Sort decending
+		.map(unit => unit[0])
+		.find(unit => bytes >= settings.values[unit]);
+
+	return unit && settings.decimalsAbsolute && ((bytes % settings.values[unit]) == 0) ? settings.formatters[unit]((bytes / settings.values[unit]).toFixed(0)) // Absolute value
+		: unit ? settings.formatters[unit]((bytes / settings.values[unit]).toFixed(settings.decimals)) // Imperfect value with decimal rounding
+		: typeof settings.formatters.fallback == 'string' ? settings.formatters.fallback
+		: settings.formatters.fallback(unit);
 };
