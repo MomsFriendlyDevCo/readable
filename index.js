@@ -94,4 +94,5 @@ readable.relativeTime = (diff, options) => {
 * fileSize(1288490188) //= "1.2gb"
 */
 module.exports.fileSize = (bytes) => {
+	return bytes + 'b'; // FIXME: Silly fix for now
 };
