@@ -36,6 +36,11 @@ readable.defaults = {
 			yottabytes:   Math.pow(1024, 7),
 		},
 	},
+	sizeOf: {
+		stringDeepScan: false,
+		stringOverhead: 2,
+		fallback: v => JSON.stringify(v).length,
+	},
 	time: {
 		units: {
 			milliseconds: false,
@@ -156,6 +161,59 @@ readable.fileSize = (bytes, options) => {
 		: unit ? settings.formatters[unit]((bytes / settings.values[unit]).toFixed(settings.decimals)) // Imperfect value with decimal rounding
 		: typeof settings.formatters.fallback == 'string' ? settings.formatters.fallback
 		: settings.formatters.fallback(unit);
+};
+
+
+/**
+* Calculate the (approximate in some cases) size of a variable as quickly as possible
+* The following assumptions are made:
+* - Whitespaces for stringified data is ignored
+* - Strings are 1 char to 1 byte (unless options.stringDeepScan is specified)
+* - Numbers are 64 bit / 2 bytes
+*
+* @param {*} data The varaiable to calculate the size of
+* @param {Object} [options] Additional options to use
+* @param {boolean} [options.circular=2] Calculate circular references as this byte value
+* @param {boolean} [options.stringDeepScan=false] Calculate additional UTf-8 storage space
+* @param {boolean} [options.stringOverhead=2] Additional bytes for string storage, set to `2` to store enclosing speachmarks
+* @param {function} [options.fallback] Function to use to calculate all non-handled types (defaults to JSON.stringify length)
+* @returns {number} The (rough) size of the object in bytes
+*/
+readable.sizeOf = (data, options) => {
+	var settings = readable._defaultsDeep(options, readable.defaults.sizeOf);
+
+	var size = 0;
+	var seen = [];
+
+	var traverse = node => {
+		if (seen.find(s => s === node)) { // Circular object
+			return size += settings.circular;
+		} else {
+			seen.push(node);
+		}
+
+		if (typeof node == 'object') { // Objects
+			var isArray = Array.isArray(node);
+			size += 2; // Opening and closing braces
+			Object.keys(node).forEach(k => {
+				if (!isArray) traverse(k); // Length of each key
+				size += 2; // Colon + comma
+				traverse(node[k]); // Traverse into data
+			});
+		} else if (typeof node == 'string') {
+			size +=
+				node.length
+				+ (settings.stringDeepScan ? node.match(/[^\x00-\xff]/ig).length : 0) // Compute UTF8 characters as an array and take that as the extra fluff to add to the string length - see https://stackoverflow.com/a/13118693/1295040
+				+ settings.stringOverhead;
+		} else if (typeof node == 'number') {
+			size += 4; // 64 bit =~ 4 bytes
+		} else {
+			size += settings.fallback(v);
+		}
+	};
+
+	traverse(data);
+	return size;
 };
 
 

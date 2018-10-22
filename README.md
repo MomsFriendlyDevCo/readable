@@ -19,6 +19,30 @@ readable.defaults
 Obejct containing all the default settings. These are deep merged with any setting object given to a formatter.
 
 
+readable.fileSize(bytes, [options])
+-----------------------------------
+Return a human readable file size.
+
+```javascript
+readable.fileSize(1024) //= "1kb"
+readable.fileSize(1536) //= "1.5kb"
+readable.fileSize(1048576) //= "1mb"
+readable.fileSize(1073741824) //= "1tb"
+readable.fileSize(1288490188) //= "1.2tb"
+```
+
+This function can take the following options:
+
+| Option                  | Type                     | Default        | Description                                                                                                                                                                |
+|-------------------------|--------------------------|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `decimals`              | `number`                 | `1`            | Decimal places to format the number into                                                                                                                                   |
+| `decimalsAbsolute`      | `boolean`                | `true`         | If true the decimals will be clipped entirely if the number is exactly correct (e.g. if the input is `1024` the output is `1kb` not `1.0kb`)                               |
+| `units`                 | `Object`                 | (See code)     | A list of units to output, each is named in the plural with a boolean indicating if it should be reported e.g. `{units: {years: true}}` to enable years as a usable unit   |
+| `formatters`            | `Object`                 | (See code)     | A list of formatters for each named unit, each should be a function taking a single value. e.g. `{formatters: {days: v => \`${v} days\`}}`                                 |
+| `formatters.fallback`   | `Function` or `String`   | `""`           | The fallback formatter to use, if it is a string its used as is, if it is a function it is called with the value                                                           |
+| `values`                | `Object`                 | (See code)     | A list of unit values to work with if the unit is enabled, each is the plural key of the measure with the number of milliseconds within the unit as the key                |
+
+
 readable.relativeTime(timestamp, [options])
 -------------------------------------------
 Return a human readable relative time distance.
@@ -45,25 +69,3 @@ This function can take the following options:
 | `values`              | `Object`               | (See code)   | A list of unit values to work with if the unit is enabled, each is the plural key of the measure with the number of milliseconds within the unit as the key              |
 
 
-readable.fileSize(bytes, [options])
------------------------------------
-Return a human readable file size.
-
-```javascript
-readable.fileSize(1024) //= "1kb"
-readable.fileSize(1536) //= "1.5kb"
-readable.fileSize(1048576) //= "1mb"
-readable.fileSize(1073741824) //= "1tb"
-readable.fileSize(1288490188) //= "1.2tb"
-```
-
-This function can take the following options:
-
-| Option                  | Type                     | Default        | Description                                                                                                                                                                |
-|-------------------------|--------------------------|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `decimals`              | `number`                 | `1`            | Decimal places to format the number into                                                                                                                                   |
-| `decimalsAbsolute`      | `boolean`                | `true`         | If true the decimals will be clipped entirely if the number is exactly correct (e.g. if the input is `1024` the output is `1kb` not `1.0kb`)                               |
-| `units`                 | `Object`                 | (See code)     | A list of units to output, each is named in the plural with a boolean indicating if it should be reported e.g. `{units: {years: true}}` to enable years as a usable unit   |
-| `formatters`            | `Object`                 | (See code)     | A list of formatters for each named unit, each should be a function taking a single value. e.g. `{formatters: {days: v => \`${v} days\`}}`                                 |
-| `formatters.fallback`   | `Function` or `String`   | `""`           | The fallback formatter to use, if it is a string its used as is, if it is a function it is called with the value                                                           |
-| `values`                | `Object`                 | (See code)     | A list of unit values to work with if the unit is enabled, each is the plural key of the measure with the number of milliseconds within the unit as the key                |
