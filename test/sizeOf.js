@@ -1,4 +1,5 @@
 var expect = require('chai').expect;
+var moment = require('moment');
 var readable = require('..');
 
 describe('readable.sizeOf()', function() {
@@ -15,6 +16,15 @@ describe('readable.sizeOf()', function() {
 		expect(readable.sizeOf([{}])).to.equal(6); // Not true but near enough
 		expect(readable.sizeOf({foo: 'abc'})).to.equal(14);
 		expect(readable.sizeOf([1, 2, 3])).to.equal(20);
+	});
+
+	it('should fail gracefully when given invalid types', ()=> {
+		expect(readable.sizeOf(new Date())).to.equal(70); // Dates expose a really weird toString() handler
+		expect(readable.sizeOf(new Map())).to.equal(14); // Exposes as '[object Map]'
+		expect(readable.sizeOf(new Set([1, 2, 3]))).to.equal(14); // Exposes as '[object Set]'
+		expect(readable.sizeOf(moment())).to.equal(35); // Moments own weird string exposure function
+		expect(readable.sizeOf(Infinity)).to.equal(4); // Should be a number
+		expect(readable.sizeOf(Buffer.alloc(1))).to.equal(8);
 	});
 
 	it('should calculate UTF-8 character sizes when enabled', ()=> {

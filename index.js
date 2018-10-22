@@ -39,7 +39,7 @@ readable.defaults = {
 	sizeOf: {
 		stringDeepScan: false,
 		stringOverhead: 2,
-		fallback: v => JSON.stringify(v).length,
+		fallback: v => JSON.stringify(String(v)).length,
 	},
 	time: {
 		units: {
@@ -197,7 +197,7 @@ readable.sizeOf = (data, options) => {
 			size += 4;
 		} else if (node === undefined) {
 			size += 9;
-		} else if (typeof node == 'object') { // Objects
+		} else if (typeof node == 'object' && node.constructor && node.constructor.name && (node.constructor.name == 'Object' || node.constructor.name == 'Array')) { // Objects
 			var isArray = Array.isArray(node);
 			size += 2; // Opening and closing braces
 			Object.keys(node).forEach(k => {
@@ -215,7 +215,7 @@ readable.sizeOf = (data, options) => {
 		} else if (typeof node == 'number') {
 			size += 4; // 64 bit =~ 4 bytes
 		} else {
-			size += settings.fallback(v);
+			size += settings.fallback(node);
 		}
 	};
 
