@@ -1,6 +1,6 @@
 {
   "name": "@momsfriendlydevco/readable",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Utility formatters to take raw data and present it in a readable format",
   "main": "index.js",
   "directories": {
@@ -23,6 +23,7 @@
     "size",
     "byte",
     "size",
+    "sizeOf",
     "human",
     "readable"
   ],

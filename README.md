@@ -69,3 +69,28 @@ This function can take the following options:
 | `values`              | `Object`               | (See code)   | A list of unit values to work with if the unit is enabled, each is the plural key of the measure with the number of milliseconds within the unit as the key              |
 
 
+readable.sizeOf(data, [options])
+--------------------------------
+Calculate the (approximate in some cases) size of a variable as quickly as possible.
+
+```javascript
+readable.sizeOf(123) //= 4 (JS uses 64bit integers)
+readable.sizeOf('a') //= 3 (1 byte + enclosing speachmarks)
+readable.sizeOf({}) //= 2 (enclosing braces only)
+readable.sizeOf({foo: 'abc'}) //= 14
+```
+
+The following assumptions are made:
+* Whitespace for stringified data is ignored
+* Strings are 1 char to 1 byte (unless options.stringDeepScan is specified)
+* Numbers are 64 bit / 2 bytes
+
+This function can take the following options:
+
+
+| Option           | Type       | Default    | Description                                                                            |
+|------------------|------------|------------|----------------------------------------------------------------------------------------|
+| `circular`       | `number`   | `2`        | Calculate circular references as this byte value                                       |
+| `stringDeepScan` | `boolean`  | `false`    | Calculate additional UTf-8 storage space                                               |
+| `stringOverhead` | `number`   | `2`        | Additional bytes for string storage, set to `2` to store enclosing speachmarks         |
+| `fallback`       | `function` | (See code) | Function to use to calculate all non-handled types (defaults to JSON.stringify length) |

@@ -167,7 +167,7 @@ readable.fileSize = (bytes, options) => {
 /**
 * Calculate the (approximate in some cases) size of a variable as quickly as possible
 * The following assumptions are made:
-* - Whitespaces for stringified data is ignored
+* - Whitespace for stringified data is ignored
 * - Strings are 1 char to 1 byte (unless options.stringDeepScan is specified)
 * - Numbers are 64 bit / 2 bytes
 *
