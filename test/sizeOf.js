@@ -4,8 +4,12 @@ var readable = require('..');
 describe('readable.sizeOf()', function() {
 
 	it('should calculate simple scalar sizes', ()=> {
+		expect(readable.sizeOf(null)).to.equal(4);
+		expect(readable.sizeOf(undefined)).to.equal(9);
 		expect(readable.sizeOf(123)).to.equal(4);
+		expect(readable.sizeOf(NaN)).to.equal(3);
 		expect(readable.sizeOf('a')).to.equal(3);
+		expect(readable.sizeOf('')).to.equal(2);
 		expect(readable.sizeOf({})).to.equal(2);
 		expect(readable.sizeOf([])).to.equal(2);
 		expect(readable.sizeOf([{}])).to.equal(6); // Not true but near enough

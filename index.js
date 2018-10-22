@@ -193,7 +193,11 @@ readable.sizeOf = (data, options) => {
 			seen.push(node);
 		}
 
-		if (typeof node == 'object') { // Objects
+		if (node === null) {
+			size += 4;
+		} else if (node === undefined) {
+			size += 9;
+		} else if (typeof node == 'object') { // Objects
 			var isArray = Array.isArray(node);
 			size += 2; // Opening and closing braces
 			Object.keys(node).forEach(k => {
@@ -206,6 +210,8 @@ readable.sizeOf = (data, options) => {
 				node.length
 				+ (settings.stringDeepScan ? node.match(/[^\x00-\xff]/ig).length : 0) // Compute UTF8 characters as an array and take that as the extra fluff to add to the string length - see https://stackoverflow.com/a/13118693/1295040
 				+ settings.stringOverhead;
+		} else if (Number.isNaN(node)) {
+			size += 3;
 		} else if (typeof node == 'number') {
 			size += 4; // 64 bit =~ 4 bytes
 		} else {
