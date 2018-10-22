@@ -37,6 +37,7 @@ readable.defaults = {
 		},
 	},
 	sizeOf: {
+		circular: 2,
 		stringDeepScan: false,
 		stringOverhead: 2,
 		fallback: v => JSON.stringify(String(v)).length,
@@ -205,10 +206,11 @@ readable.sizeOf = (data, options) => {
 				size += 2; // Colon + comma
 				traverse(node[k]); // Traverse into data
 			});
-		} else if (typeof node == 'string') {
+		} else if (typeof node == 'string' && node.constructor.name == 'String') {
+			var rawStr = String(node);
 			size +=
-				node.length
-				+ (settings.stringDeepScan ? node.match(/[^\x00-\xff]/ig).length : 0) // Compute UTF8 characters as an array and take that as the extra fluff to add to the string length - see https://stackoverflow.com/a/13118693/1295040
+				rawStr.length
+				+ (settings.stringDeepScan ? rawStr.match(/[^\x00-\xff]/ig).length : 0) // Compute UTF8 characters as an array and take that as the extra fluff to add to the string length - see https://stackoverflow.com/a/13118693/1295040
 				+ settings.stringOverhead;
 		} else if (Number.isNaN(node)) {
 			size += 3;
