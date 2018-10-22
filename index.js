@@ -170,6 +170,7 @@ readable.fileSize = (bytes, options) => {
 * - Whitespace for stringified data is ignored
 * - Strings are 1 char to 1 byte (unless options.stringDeepScan is specified)
 * - Numbers are 64 bit / 2 bytes
+* - Circular references are resolved to a given byte size (see options.circular)
 *
 * @param {*} data The varaiable to calculate the size of
 * @param {Object} [options] Additional options to use
