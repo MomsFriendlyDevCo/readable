@@ -37,7 +37,7 @@ readable.defaults = {
 		},
 	},
 	sizeOf: {
-		circular: 2,
+		circular: false,
 		stringDeepScan: false,
 		stringOverhead: 2,
 		fallback: v => JSON.stringify(String(v)).length,
@@ -175,7 +175,7 @@ readable.fileSize = (bytes, options) => {
 *
 * @param {*} data The varaiable to calculate the size of
 * @param {Object} [options] Additional options to use
-* @param {boolean} [options.circular=2] Calculate circular references as this byte value
+* @param {boolean|number} [options.circular=false] Calculate circular references as this byte value, if boolean false, circular references are not counted - this can lead to recursion
 * @param {boolean} [options.stringDeepScan=false] Calculate additional UTf-8 storage space
 * @param {boolean} [options.stringOverhead=2] Additional bytes for string storage, set to `2` to store enclosing speachmarks
 * @param {function} [options.fallback] Function to use to calculate all non-handled types (defaults to JSON.stringify length)
@@ -188,9 +188,9 @@ readable.sizeOf = (data, options) => {
 	var seen = [];
 
 	var traverse = node => {
-		if (seen.find(s => s === node)) { // Circular object
+		if (settings.circular !== false && seen.find(s => s === node)) { // Circular object
 			return size += settings.circular;
-		} else {
+		} else if (settings.circular !== false) {
 			seen.push(node);
 		}
 

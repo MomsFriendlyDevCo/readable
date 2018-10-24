@@ -89,9 +89,9 @@ The following assumptions are made:
 This function can take the following options:
 
 
-| Option           | Type       | Default    | Description                                                                            |
-|------------------|------------|------------|----------------------------------------------------------------------------------------|
-| `circular`       | `number`   | `2`        | Calculate circular references as this byte value                                       |
-| `stringDeepScan` | `boolean`  | `false`    | Calculate additional UTf-8 storage space                                               |
-| `stringOverhead` | `number`   | `2`        | Additional bytes for string storage, set to `2` to store enclosing speachmarks         |
-| `fallback`       | `function` | (See code) | Function to use to calculate all non-handled types (defaults to JSON.stringify length) |
+| Option           | Type                    | Default    | Description                                                                                     |
+|------------------|-------------------------|------------|-------------------------------------------------------------------------------------------------|
+| `circular`       | `boolean` or `number`   | `false`    | Calculate circular references as this byte value, if boolean `false` references are not checked |
+| `stringDeepScan` | `boolean`               | `false`    | Calculate additional UTf-8 storage space                                                        |
+| `stringOverhead` | `number`                | `2`        | Additional bytes for string storage, set to `2` to store enclosing speachmarks                  |
+| `fallback`       | `function`              | (See code) | Function to use to calculate all non-handled types (defaults to JSON.stringify length)          |
