@@ -185,13 +185,13 @@ readable.sizeOf = (data, options) => {
 	var settings = readable._defaultsDeep(options, readable.defaults.sizeOf);
 
 	var size = 0;
-	var seen = [];
+	var seen = new WeakSet();
 
 	var traverse = node => {
-		if (settings.circular !== false && seen.find(s => s === node)) { // Circular object
+		if (settings.circular !== false && typeof node == 'object' && seen.has(node)) { // Circular object
 			return size += settings.circular;
-		} else if (settings.circular !== false) {
-			seen.push(node);
+		} else if (settings.circular !== false && typeof node == 'object') {
+			seen.add(node);
 		}
 
 		if (node === null) {
