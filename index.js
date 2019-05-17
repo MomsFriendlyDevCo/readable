@@ -1,4 +1,4 @@
-var readable = module.exports = {};;
+var readable = module.exports = {};
 
 readable.defaults = {
 	fileSize: {

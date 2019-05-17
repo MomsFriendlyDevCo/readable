@@ -1,8 +1,9 @@
 {
   "name": "@momsfriendlydevco/readable",
-  "version": "1.1.5",
+  "version": "1.2.0",
   "description": "Utility formatters to take raw data and present it in a readable format",
   "main": "index.js",
+  "browser": "dist/readable.min.js",
   "directories": {
     "test": "test"
   },
@@ -34,7 +35,14 @@
   },
   "homepage": "https://github.com/MomsFriendlyDevCo/readable#readme",
   "devDependencies": {
+    "@babel/core": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
     "chai": "^4.2.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^8.0.0",
+    "gulp-rename": "^1.4.0",
+    "gulp-replace": "^1.0.0",
+    "gulp-uglify": "^3.0.2",
     "lodash": "^4.17.11",
     "mocha": "^5.2.0",
     "moment": "^2.22.2"
