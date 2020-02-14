@@ -1,6 +1,6 @@
 {
   "name": "@momsfriendlydevco/readable",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Utility formatters to take raw data and present it in a readable format",
   "main": "index.js",
   "browser": "dist/readable.min.js",
